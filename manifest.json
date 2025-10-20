@@ -1,0 +1,18 @@
+{
+  "name": "VeilNet - Weekly Content Creation Hub",
+  "short_name": "VeilNet",
+  "description": "Hub personal para organizar contenido semanal",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#1a1f35",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

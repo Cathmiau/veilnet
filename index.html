@@ -1,0 +1,2532 @@
+<!doctype html>
+<html lang="es">
+
+<!-- Favicon y PWA -->
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Meta tags para PWA en iOS -->
+  <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="VeilNet">
+  <meta name="theme-color" content="#1a1f35">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VeilNet — Weekly Content Creation Hub</title>
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Eagle+Lake&family=Spectral+SC:wght@400;600&family=Crimson+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================
+       PALETA Y BASE
+       ============================ */
+    :root{
+      --bg:#07080b;               /* fondo global */
+      --ink:#e7e7ea;              /* texto principal */
+      --muted:#a7aec0;            /* texto atenuado */
+      --blue:#79a7ff;             /* azul neón elegante */
+      --blue-soft:rgba(121,167,255,.35);
+      --panel: transparent; /* panel principal (vidrioso) */
+      --card: transparent;             /* tarjetas internas */
+      --border:#253056;           /* borde suave */
+      --shadowA:rgba(0,0,0,.55);
+      --shadowB:rgba(0,0,0,.35);
+      --accent:#0a84ff;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0; background:var(--bg); color:var(--ink); font-family:'Crimson Pro', ui-serif, Georgia, serif}
+
+    /* Fondo: negro con glow azul que “desciende” del título */
+    /* Foto de fondo */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url('veilnetbg.jpg');
+  background-size: cover;
+  background-position: center 8%;
+  background-repeat: no-repeat;
+  opacity: 0.25; /* Ajusta entre 0.1 y 0.4 */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Glow azul encima de la foto */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(121,167,255,.18), transparent 60%),
+    radial-gradient(80% 40% at 50% 0%, rgba(121,167,255,.12), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 18px 16px 64px;
+  position: relative;
+  z-index: 1;
+}
+    /* ============================
+       TÍTULO + SUBTÍTULO (brand)
+       ============================ */
+    .brand{ text-align:center; margin:32px 0 18px; }
+    .brand h1{
+      font-family:'Eagle Lake', serif;
+      font-size:64px; line-height:1; margin:0 0 6px;
+      letter-spacing:2px; color:#dfe6ff;
+      text-shadow:
+        0 0 18px rgba(121,167,255,.35),
+        0 0 6px rgba(121,167,255,.35);
+      transition: transform .25s ease, filter .25s ease, text-shadow .25s ease;
+      transform-origin:center;
+    }
+    .brand .subtitle{
+      font-family:'Spectral SC', serif;
+      font-size:18px; letter-spacing:3px;
+      color:#b9c7ff; opacity:.95; margin:0;
+      text-shadow: 0 0 12px rgba(121,167,255,.25);
+      transition: transform .25s ease, filter .25s ease, text-shadow .25s ease;
+      transform-origin:center;
+    }
+    /* Hover/tap conjunto */
+    .brand:hover h1, .brand:hover .subtitle,
+    .brand:focus-within h1, .brand:focus-within .subtitle{
+      transform: scale(1.04);
+      filter: brightness(1.08);
+      text-shadow:
+        0 10px 24px rgba(0,0,0,.6),
+        0 0 24px rgba(121,167,255,.45);
+    }
+
+    /* ============================
+       TABS estilo carpeta
+       ============================ */
+    .tabs{ display:flex; gap:8px; align-items:flex-end; margin:10px 0 0; position:relative; z-index:3; }
+    .tabs::after{
+      /* sombra bajo el conjunto, para “flotar” */
+      content:""; position:absolute; left:12px; right:12px; bottom:-8px; height:20px;
+      background: rgba(0,0,0,.55); filter: blur(12px); opacity:.6; pointer-events:none;
+    }
+    .tab{
+      padding:8px 14px; font-weight:600; letter-spacing:.5px; cursor:pointer; user-select:none;
+      background:#0d1326; color:#d6dcff;
+      border:1px solid var(--border); border-bottom:none; border-radius:14px 14px 0 0;
+      transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,.02);
+    }
+    .tab.active{
+      background:var(--panel);
+      box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--border) 80%, transparent);
+      color:#fff;
+    }
+
+    /* ============================
+       PANEL PRINCIPAL + CARDS
+       ============================ */
+    .tabpanels{
+      position:relative; z-index:2;
+      background:var(--panel);
+      border:1px solid var(--border); border-top:none;
+      border-radius:0 16px 16px 16px;
+      box-shadow:-6px 18px 30px var(--shadowA), 0 12px 24px var(--shadowB);
+      backdrop-filter: blur(3px);
+      overflow:hidden;
+      padding:12px;
+    }
+    .panel{ display:none; }
+    .panel.active{ display:block; }
+
+    .card{
+      background:var(--card);
+      border: none;
+      border-radius:12px;
+      padding:16px;
+      color:var(--ink);
+      margin:0;
+    }
+    .card + .card{
+      margin-top:-2px;         /* une visualmente las tarjetas */
+      border-top:none;
+    }
+    .card:first-child{ border-top-left-radius:14px; border-top-right-radius:14px; }
+    .card:last-child { border-bottom-left-radius:14px; border-bottom-right-radius:14px; }
+
+    .card > b{ display:block; margin:4px 0 8px; letter-spacing:.6px; color:#d9e2ff; }
+
+    /* ============================
+       BOTONES
+       ============================ */
+    .btn{
+      display:inline-block; width:auto; padding:12px 14px; border-radius:10px;
+      background:#142041; color:var(--ink); text-decoration:none; text-align:center; font-weight:600;
+      border:1px solid var(--border);
+      transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+      will-change: transform;
+    }
+    .btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,.35), 0 0 12px rgba(121,167,255,.22);
+    }
+    .btn:active{
+      transform: translateY(2px) scale(.985);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.25);
+      filter: brightness(.95);
+    }
+
+    /* ============================
+       INPUTS UNIFICADOS
+       ============================ */
+    input[type="text"], textarea, select{
+      width:100%; background: rgba(15, 24, 51, 0.2); color:#dfe4ff;
+      border:1px solid var(--border); border-radius:10px; padding:10px 12px; outline:none;
+      font-family:inherit;
+    }
+    input::placeholder, textarea::placeholder{ color:#7f88c2; }
+
+    .grid2{
+      display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center;
+    }
+
+    /* ============================
+       LISTAS / ITEMS
+       ============================ */
+    .list{ display:grid; gap:8px; border-radius:12px; overflow:hidden; }
+    .item{
+  display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px;
+  background: rgba(15, 23, 48, 0.4); /* Transparente como los inputs */
+  backdrop-filter: blur(10px); /* Efecto vidrio */
+  border:1px solid var(--border); position:relative;
+  transition: transform .12s ease, background .2s ease; /* Añadido background */
+}
+    /* halo en hover/tap */
+    .item::after{
+      content:""; position:absolute; inset:-4px; border-radius:inherit; pointer-events:none; opacity:0;
+      background:
+        radial-gradient(120% 120% at 10% 50%, var(--blue-soft), transparent 30%),
+        radial-gradient(120% 120% at 90% 50%, var(--blue-soft), transparent 30%);
+      filter: blur(12px); transition: opacity .18s ease, filter .18s ease;
+    }
+    .item:hover{ transform: translateY(-1px); }
+    .item:hover::after, .item:active::after{ opacity:.7; filter: blur(16px); }
+
+    /* checkbox: sin azul por defecto, look limpio */
+    .item input[type="checkbox"]{ width:18px; height:18px; accent-color: transparent; }
+
+    /* hecho: tachado + baja opacidad y se va al final (se maneja en JS también) */
+    .item.done{ opacity:.65; background:#101a36; }
+    .item.done span{ text-decoration: line-through; color:var(--muted); }
+
+    /* botón tacho */
+    .del{
+      margin-left:auto; width:28px; height:28px; border-radius:8px; border:1px solid rgba(255,109,109,.25);
+      background:transparent; color:#9aa0c8; display:inline-flex; align-items:center; justify-content:center;
+      transition: transform .1s ease, color .15s ease, background .15s ease, border-color .15s ease;
+      cursor:pointer;
+    }
+    .del:hover{ background: rgba(255,109,109,.08); color:#ff6d6d; border-color: rgba(255,109,109,.45); }
+    .del:active{ transform: translateY(2px) scale(.93); box-shadow: inset 0 2px 4px rgba(0,0,0,.4); }
+
+    .muted{ color:var(--muted); }
+
+    /* Paginación del diario */
+    .pager{ display:flex; gap:8px; justify-content:center; align-items:center; margin-top:10px; }
+    .pager b{ min-width:40px; text-align:center; }
+
+    /* Enlaces Ver más / Ver menos */
+    .toggle{
+      color:#bcd2ff; text-decoration:underline; cursor:pointer; user-select:none;
+    }
+
+    /* el acomode del input, select, boton añadir de las tareas */
+
+    .grid3 {
+  display: grid;
+  grid-template-columns: 1fr auto auto; /* input flexible + select + botón */
+  gap: 8px;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .grid3 {
+    grid-template-columns: 1fr; /* en móvil, cada uno debajo del otro */
+  }
+}
+
+/* ===== RESPONSIVE: MÓVIL ===== */
+@media (max-width: 768px) {
+  .item {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  
+  .item > div {
+    width: 100%;
+  }
+  
+  /* Botones y acciones en columna */
+  .item b,
+  .item .muted,
+  .item .toggle,
+  .item button,
+  .item span {
+    margin-bottom: 8px;
+  }
+  
+  /* Estrellas y favorito más grandes en móvil */
+  .item button[title*="favorito"] {
+    font-size: 24px !important;
+  }
+  
+  .item button[title*="favorito"] + span button {
+    font-size: 20px !important;
+  }
+}
+  </style>
+</head>
+<body>
+  <body>
+  <!-- ===== SPLASH SCREEN ===== -->
+  <div id="splashScreen" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    overflow: hidden;
+  ">
+    <!-- Video de fondo -->
+    <video autoplay muted loop playsinline style="
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 8%;
+      opacity: 0.6;
+    ">
+      <source src="splash_video.mp4" type="video/mp4">
+      <source src="splash_video.webm" type="video/webm">
+    </video>
+
+    <!-- Overlay oscuro -->
+    <div style="
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(10,14,26,0.8) 100%);
+      z-index: 1;
+    "></div>
+
+    <!-- Contenido del splash -->
+    <div style="position: relative; z-index: 2; text-align: center; padding: 20px; max-width: 500px;">
+      <!-- Título -->
+      <h1 style="
+        font-family: 'Cinzel Decorative', serif;
+        font-size: clamp(2rem, 8vw, 4rem);
+        color: #d9e2ff;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 20px rgba(121,167,255,0.5);
+        animation: fadeInDown 1s ease-out;
+      ">✨ Bienvenida</h1>
+      
+      <p style="
+        font-size: clamp(1rem, 4vw, 1.5rem);
+        color: #79a7ff;
+        margin-bottom: 3rem;
+        animation: fadeInUp 1s ease-out 0.3s both;
+      ">VeilNet</p>
+
+      <!-- Barra de progreso -->
+      <div style="
+        width: 100%;
+        height: 8px;
+        background: rgba(217,226,255,0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        animation: fadeIn 1s ease-out 0.6s both;
+      ">
+        <div id="progressBar" style="
+          width: 0%;
+          height: 100%;
+          background: linear-gradient(90deg, #79a7ff, #d9e2ff);
+          border-radius: 10px;
+          transition: width 0.3s ease;
+          box-shadow: 0 0 10px rgba(121,167,255,0.8);
+        "></div>
+      </div>
+
+      <!-- Texto de carga -->
+      <p id="loadingText" style="
+        color: rgba(217,226,255,0.7);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        animation: fadeIn 1s ease-out 0.6s both;
+      ">Preparando tu escenario...</p>
+
+      <!-- Botón saltar -->
+      <button id="skipBtn" style="
+        background: rgba(217,226,255,0.1);
+        border: 1px solid rgba(217,226,255,0.3);
+        color: #d9e2ff;
+        padding: 10px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        animation: fadeIn 1s ease-out 0.9s both;
+      " onmouseover="this.style.background='rgba(217,226,255,0.2)'; this.style.borderColor='rgba(217,226,255,0.5)'"
+         onmouseout="this.style.background='rgba(217,226,255,0.1)'; this.style.borderColor='rgba(217,226,255,0.3)'">
+        Saltar intro →
+      </button>
+    </div>
+  </div>
+
+  <!-- Tu contenido actual de la app -->
+  <div class="wrap">
+ 
+    <!-- Título + Subtítulo -->
+    <div class="brand" tabindex="0">
+      <h1>VeilNet</h1>
+      <p class="subtitle">Weekly Content Creation Hub</p>
+    </div>
+
+    <!-- Pestañas -->
+    <div class="tabs" role="tablist" aria-label="VeilNet Tabs">
+      <div class="tab active" data-tab="home" role="tab" aria-selected="true">Inicio</div>
+      <div class="tab" data-tab="outfits" role="tab">Outfits</div>
+      <div class="tab" data-tab="makeup" role="tab">Makeup</div>
+      <div class="tab" data-tab="prep" role="tab">Preparación</div>
+      <div class="tab" data-tab="cute" role="tab">Cute</div>
+      <div class="tab" data-tab="darks" role="tab">Darks</div>
+      <div class="tab" data-tab="otros" role="tab">Otros</div>
+    </div>
+
+    <!-- Paneles -->
+    <div class="tabpanels">
+      <!-- Panel 1: Diario -->
+      <div class="panel active" id="panel-home">
+        <div class="card">
+          <b>Diario de Ideas</b>
+          <div class="grid2" style="grid-template-columns:1fr auto;">
+            <input id="ideaTitle" type="text" placeholder="Título" maxlength="120" />
+            <button id="addIdeaBtn" class="btn">Guardar entrada</button>
+          </div>
+          <div style="margin-top:8px;">
+            <textarea id="ideaText" rows="6" placeholder="¿Qué se te ocurre hoy?" maxlength="5000"></textarea>
+            <div class="muted" id="charCount">0 / 5000</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <b>Ideas guardadas</b>
+          <div style="margin-top:12px; margin-bottom:12px;">
+          <button id="diaryFiltersToggle" class="btn" style="width:100%; text-align:left;">
+            🔍 Filtros <span id="diaryFilterArrow">▼</span>
+          </button>
+          <div id="diaryFiltersPanel" style="display:none; margin-top:8px; padding:12px; background:rgba(255,255,255,0.05); border-radius:8px; border:1px solid var(--border);">
+            
+            <div style="margin-bottom:12px;">
+              <b style="display:block; margin-bottom:6px;">Estado:</b>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="checkbox" id="diaryFilterDone" class="diaryFilter" /> Hechos
+              </label>
+              <label style="display:block; cursor:pointer;">
+                <input type="checkbox" id="diaryFilterNotDone" class="diaryFilter" /> No hechos
+              </label>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <b style="display:block; margin-bottom:6px;">Favoritos:</b>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="checkbox" id="diaryFilterFav" class="diaryFilter" /> Solo favoritos ❤️
+              </label>
+              <label style="display:block; cursor:pointer;">
+                <input type="checkbox" id="diaryFilterNotFav" class="diaryFilter" /> No favoritos 🤍
+              </label>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <b style="display:block; margin-bottom:6px;">Rating mínimo:</b>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="diaryRating" value="0" class="diaryFilter" checked /> Todos
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="diaryRating" value="1" class="diaryFilter" /> ⭐ 1+
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="diaryRating" value="2" class="diaryFilter" /> ⭐⭐ 2+
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="diaryRating" value="3" class="diaryFilter" /> ⭐⭐⭐ 3+
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="diaryRating" value="4" class="diaryFilter" /> ⭐⭐⭐⭐ 4+
+              </label>
+              <label style="display:block; cursor:pointer;">
+                <input type="radio" name="diaryRating" value="5" class="diaryFilter" /> ⭐⭐⭐⭐⭐ 5
+              </label>
+            </div>
+
+            <button id="diaryClearFilters" class="btn" style="width:100%;">
+              ❌ Limpiar filtros
+            </button>
+
+          </div>
+        </div>
+          <div id="ideasList" class="list"></div>
+          <div class="pager">
+            <a class="btn" id="prevPage">Anterior</a>
+            <b id="pageLabel">1/1</b>
+            <a class="btn" id="nextPage">Siguiente</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Outfits -->
+<div class="panel" id="panel-outfits">
+  <div class="card">
+    <b>Diario de Outfits</b>
+    <div class="grid2" style="grid-template-columns:1fr auto;">
+      <input id="outTitle" type="text" placeholder="Título" maxlength="120" />
+      <label class="btn" for="outFiles" style="cursor:pointer;">Añadir imagen (máx. 3)</label>
+      <input id="outFiles" type="file" accept="image/*" multiple style="display:none;" />
+    </div>
+    <div id="outPreview" class="list" style="margin-top:8px;"></div>
+    <div style="margin-top:8px;">
+      <textarea id="outText" rows="6" placeholder="¿Qué te vas a poner hoy?" maxlength="5000"></textarea>
+      <div class="muted" id="outCharCount">0 / 5000</div>
+    </div>
+    <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end;">
+      <button id="addOutBtn" class="btn">Guardar outfit</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <b>Outfits guardados</b>
+    <div style="margin-top:12px; margin-bottom:12px;">
+          <button id="outfitFiltersToggle" class="btn" style="width:100%; text-align:left;">
+            🔍 Filtros <span id="outfitFilterArrow">▼</span>
+          </button>
+          <div id="outfitFiltersPanel" style="display:none; margin-top:8px; padding:12px; background:rgba(255,255,255,0.05); border-radius:8px; border:1px solid var(--border);">
+            
+            <div style="margin-bottom:12px;">
+              <b style="display:block; margin-bottom:6px;">Estado:</b>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="checkbox" id="outfitFilterDone" class="outfitFilter" /> Probados
+              </label>
+              <label style="display:block; cursor:pointer;">
+                <input type="checkbox" id="outfitFilterNotDone" class="outfitFilter" /> No probados
+              </label>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <b style="display:block; margin-bottom:6px;">Favoritos:</b>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="checkbox" id="outfitFilterFav" class="outfitFilter" /> Solo favoritos ❤️
+              </label>
+              <label style="display:block; cursor:pointer;">
+                <input type="checkbox" id="outfitFilterNotFav" class="outfitFilter" /> No favoritos 🤍
+              </label>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <b style="display:block; margin-bottom:6px;">Rating mínimo:</b>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="outfitRating" value="0" class="outfitFilter" checked /> Todos
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="outfitRating" value="1" class="outfitFilter" /> ⭐ 1+
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="outfitRating" value="2" class="outfitFilter" /> ⭐⭐ 2+
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="outfitRating" value="3" class="outfitFilter" /> ⭐⭐⭐ 3+
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="outfitRating" value="4" class="outfitFilter" /> ⭐⭐⭐⭐ 4+
+              </label>
+              <label style="display:block; cursor:pointer;">
+                <input type="radio" name="outfitRating" value="5" class="outfitFilter" /> ⭐⭐⭐⭐⭐ 5
+              </label>
+            </div>
+
+            <button id="outfitClearFilters" class="btn" style="width:100%;">
+              ❌ Limpiar filtros
+            </button>
+
+          </div>
+        </div>
+    <div id="outList" class="list"></div>
+    <div class="pager">
+      <a class="btn" id="outPrev">Anterior</a>
+      <b id="outPage">1/1</b>
+      <a class="btn" id="outNext">Siguiente</a>
+    </div>
+  </div>
+</div>
+
+<!-- Panel 3: Makeup -->
+      <div class="panel" id="panel-makeup">
+        <div class="card">
+          <b>Diario de Looks</b>
+          <div class="grid2" style="grid-template-columns:1fr auto;">
+            <input id="makeupTitle" type="text" placeholder="Título" maxlength="120" />
+            <label class="btn" for="makeupFiles" style="cursor:pointer;">Añadir imagen (máx. 3)</label>
+            <input id="makeupFiles" type="file" accept="image/*" multiple style="display:none;" />
+          </div>
+          <div id="makeupPreview" class="list" style="margin-top:8px;"></div>
+          <div style="margin-top:8px;">
+            <textarea id="makeupText" rows="6" placeholder="¿Qué look creaste hoy?" maxlength="5000"></textarea>
+            <div class="muted" id="makeupCharCount">0 / 5000</div>
+          </div>
+          <div style="margin-top:8px; display:flex; gap:8px; justify-content:flex-end;">
+            <button id="addMakeupBtn" class="btn">Guardar look</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <b>Looks guardados</b>
+          <div style="margin-top:12px; margin-bottom:12px;">
+          <button id="makeupFiltersToggle" class="btn" style="width:100%; text-align:left;">
+            🔍 Filtros <span id="makeupFilterArrow">▼</span>
+          </button>
+          <div id="makeupFiltersPanel" style="display:none; margin-top:8px; padding:12px; background:rgba(255,255,255,0.05); border-radius:8px; border:1px solid var(--border);">
+            
+            <div style="margin-bottom:12px;">
+              <b style="display:block; margin-bottom:6px;">Estado:</b>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="checkbox" id="makeupFilterDone" class="makeupFilter" /> Usados
+              </label>
+              <label style="display:block; cursor:pointer;">
+                <input type="checkbox" id="makeupFilterNotDone" class="makeupFilter" /> No usados
+              </label>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <b style="display:block; margin-bottom:6px;">Favoritos:</b>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="checkbox" id="makeupFilterFav" class="makeupFilter" /> Solo favoritos ❤️
+              </label>
+              <label style="display:block; cursor:pointer;">
+                <input type="checkbox" id="makeupFilterNotFav" class="makeupFilter" /> No favoritos 🤍
+              </label>
+            </div>
+
+            <div style="margin-bottom:12px;">
+              <b style="display:block; margin-bottom:6px;">Rating mínimo:</b>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="makeupRating" value="0" class="makeupFilter" checked /> Todos
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="makeupRating" value="1" class="makeupFilter" /> ⭐ 1+
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="makeupRating" value="2" class="makeupFilter" /> ⭐⭐ 2+
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="makeupRating" value="3" class="makeupFilter" /> ⭐⭐⭐ 3+
+              </label>
+              <label style="display:block; margin-bottom:4px; cursor:pointer;">
+                <input type="radio" name="makeupRating" value="4" class="makeupFilter" /> ⭐⭐⭐⭐ 4+
+              </label>
+              <label style="display:block; cursor:pointer;">
+                <input type="radio" name="makeupRating" value="5" class="makeupFilter" /> ⭐⭐⭐⭐⭐ 5
+              </label>
+            </div>
+
+            <button id="makeupClearFilters" class="btn" style="width:100%;">
+              ❌ Limpiar filtros
+            </button>
+
+          </div>
+        </div>
+          <div id="makeupList" class="list"></div>
+          <div class="pager">
+            <a class="btn" id="makeupPrev">Anterior</a>
+            <b id="makeupPage">1/1</b>
+            <a class="btn" id="makeupNext">Siguiente</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 4: Preparación -->
+      <div class="panel" id="panel-prep">
+        <div class="card">
+          <b>Lista de tareas antes, durante y después de grabar</b>
+          <div class="grid3">
+            <input id="prepTaskText" type="text" placeholder="Nueva tarea…" />
+            <select id="prepTaskCat"></select>
+            <button id="prepAddTask" class="btn" type="button">Añadir</button>
+          </div>
+          <div class="grid2" style="margin-top:8px;">
+            <input id="prepNewCat" type="text" placeholder="Nueva categoría…" />
+            <button id="prepAddCat" class="btn" type="button">Añadir categoría</button>
+          </div>
+        </div>
+        <div class="card">
+          <div id="prepDyn" class="list"></div>
+        </div>
+      </div>
+
+      <!-- Panel 5: Cute -->
+      <div class="panel" id="panel-cute">
+        <div class="card">
+          <b>Cuentas Jelly Look y Fotos Kawaii</b>
+          <div class="grid3">
+            <input id="cuteTaskText" type="text" placeholder="Nueva tarea…" />
+            <select id="cuteTaskCat"></select>
+            <button id="cuteAddTask" class="btn" type="button">Añadir</button>
+          </div>
+          <div class="grid2" style="margin-top:8px;">
+            <input id="cuteNewCat" type="text" placeholder="Nueva categoría…" />
+            <button id="cuteAddCat" class="btn" type="button">Añadir categoría</button>
+          </div>
+        </div>
+        <div class="card">
+          <div id="cuteDyn" class="list"></div>
+        </div>
+      </div>
+
+      <!-- Panel 6: Darks -->
+      <div class="panel" id="panel-darks">
+        <div class="card">
+          <b>Cuentas Idle/Canto y Fotos Góticas</b>
+          <div class="grid3">
+            <input id="darksTaskText" type="text" placeholder="Nueva tarea…" />
+            <select id="darksTaskCat"></select>
+            <button id="darksAddTask" class="btn" type="button">Añadir</button>
+          </div>
+          <div class="grid2" style="margin-top:8px;">
+            <input id="darksNewCat" type="text" placeholder="Nueva categoría…" />
+            <button id="darksAddCat" class="btn" type="button">Añadir categoría</button>
+          </div>
+        </div>
+        <div class="card">
+          <div id="darksDyn" class="list"></div>
+        </div>
+      </div>
+
+      <!-- Panel 7: Otros -->
+      <div class="panel" id="panel-otros">
+        <div class="card">
+          <b>Estilos de prueba y Fotos GND</b>
+          <div class="grid3">
+            <input id="otrosTaskText" type="text" placeholder="Nueva tarea…" />
+            <select id="otrosTaskCat"></select>
+            <button id="otrosAddTask" class="btn" type="button">Añadir</button>
+          </div>
+          <div class="grid2" style="margin-top:8px;">
+            <input id="otrosNewCat" type="text" placeholder="Nueva categoría…" />
+            <button id="otrosAddCat" class="btn" type="button">Añadir categoría</button>
+          </div>
+        </div>
+        <div class="card">
+          <div id="otrosDyn" class="list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================
+       VEILNET — LÓGICA
+       Todo persiste en localStorage (por panel).
+       Estructura por panel: { cats: [str], tasks: [{id,cat,text,done,ts}] }
+       Reset semanal: desmarca "done" si pasaron 7 días.
+       ========================================================== */
+
+       /* ============ IndexedDB para imágenes ============ */
+const DB_NAME = 'veilnet_images_db';
+const STORE_NAME = 'images';
+
+async function initDB(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = (e)=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains(STORE_NAME)){
+        db.createObjectStore(STORE_NAME, {keyPath: 'id'});
+      }
+    };
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+
+// Guardar imagen en IndexedDB
+async function saveImageDB(id, blob){
+  const db = await initDB();
+  const tx = db.transaction(STORE_NAME, 'readwrite');
+  tx.objectStore(STORE_NAME).put({id, blob});
+  return new Promise((resolve)=>{
+    tx.oncomplete = ()=> resolve(id);
+    tx.onerror = ()=> resolve(null);
+  });
+}
+
+// Recuperar imagen de IndexedDB
+async function getImageURL(id){
+  try{
+    const db = await initDB();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const req = tx.objectStore(STORE_NAME).get(id);
+    return new Promise((resolve)=>{
+      req.onsuccess = ()=>{
+        const blob = req.result?.blob;
+        resolve(blob ? URL.createObjectURL(blob) : null);
+      };
+      req.onerror = ()=> resolve(null);
+    });
+  }catch{ return null; }
+}
+
+// Eliminar imagen de IndexedDB
+async function deleteImageDB(id){
+  try{
+    const db = await initDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).delete(id);
+  }catch{}
+}
+
+    /* ------------- Utilidades generales ------------- */
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const uid = () => Math.random().toString(36).slice(2,9);
+
+    const todayISO = () => new Date().toISOString();
+    const daysBetween = (isoA, isoB) => Math.floor((+new Date(isoB) - +new Date(isoA)) / (24*3600*1000));
+
+    /* ------------- Tabs ------------- */
+    function setupTabs(){
+      const tabs = $$('.tab');
+      const panels = $$('.panel');
+      tabs.forEach(tab=>{
+        tab.addEventListener('click', ()=>{
+          tabs.forEach(t=>t.classList.remove('active'));
+          panels.forEach(p=>p.classList.remove('active'));
+          tab.classList.add('active');
+          $('#panel-'+tab.dataset.tab).classList.add('active');
+        });
+      });
+    }
+
+    /* ------------- Diario de ideas (panel home) ------------- */
+    const DIARY_KEY = 'veilnet_diary_v1';
+    const PAGE_KEY  = 'veilnet_diary_page';
+    const PER_PAGE  = 5;
+
+    function loadDiary(){ try{
+      return JSON.parse(localStorage.getItem(DIARY_KEY)) || [];
+    }catch{ return []; } }
+
+    function saveDiary(arr){
+      localStorage.setItem(DIARY_KEY, JSON.stringify(arr));
+    }
+
+// Estructura de entrada del diario:
+// { id, title, text, ts, status: 'si'|'no'|null, comments: [{id, text, ts}] }
+
+function renderDiary(page=1){
+  const list = $('#ideasList');
+  let data = loadDiary()
+    .map(x=> ({ status:null, comments:[], favorite:false, rating:0, ...x }))
+    .sort((a,b)=> new Date(b.ts) - new Date(a.ts));
+
+  // ===== FILTROS =====
+  const filterDone = $('#diaryFilterDone')?.checked;
+  const filterNotDone = $('#diaryFilterNotDone')?.checked;
+  const filterFav = $('#diaryFilterFav')?.checked;
+  const filterNotFav = $('#diaryFilterNotFav')?.checked;
+  const filterRating = parseInt(document.querySelector('input[name="diaryRating"]:checked')?.value || '0');
+
+  // Aplicar filtros
+  data = data.filter(entry => {
+    // Filtro de estado
+    if(filterDone && entry.status !== 'si') return false;
+    if(filterNotDone && entry.status !== 'no') return false;
+    
+    // Filtro de favoritos
+    if(filterFav && !entry.favorite) return false;
+    if(filterNotFav && entry.favorite) return false;
+    
+    // Filtro de rating
+    if(filterRating > 0 && (entry.rating || 0) < filterRating) return false;
+    
+    return true;
+  });
+  // ===== FIN FILTROS =====
+
+  const totalPages = Math.max(1, Math.ceil(data.length / PER_PAGE));
+  
+  if(page<1) page=1; if(page>totalPages) page=totalPages;
+  localStorage.setItem(PAGE_KEY, String(page));
+
+  list.innerHTML='';
+  const start = (page-1)*PER_PAGE;
+  const chunk = data.slice(start, start+PER_PAGE);
+
+  chunk.forEach(entry=>{
+    const item = document.createElement('div');
+    item.className='item';
+
+    // cabecera: título, meta, toggler
+    const title = document.createElement('b');
+    const meta  = document.createElement('span');
+    const toggle= document.createElement('span');
+    const body  = document.createElement('div');
+
+    title.textContent = entry.title || '(Sin título)';
+    meta.className='muted';
+    meta.textContent = ' — ' + new Date(entry.ts).toLocaleString();
+    toggle.className='toggle'; toggle.textContent=' Ver más';
+    body.style.display='none';
+    body.style.marginTop='6px';
+    body.textContent = entry.text || '';
+
+    let open=false;
+    toggle.onclick = ()=>{
+      open = !open;
+      body.style.display = open ? 'block' : 'none';
+      toggle.textContent = open ? ' Ver menos' : ' Ver más';
+    };
+
+    // ----- “¿Lo hiciste?  Sí / No” -----
+    const statusWrap = document.createElement('div');
+    statusWrap.style.display='flex';
+    statusWrap.style.gap='8px';
+    statusWrap.style.alignItems='center';
+    statusWrap.style.marginTop='8px';
+
+    const q = document.createElement('span');
+    q.textContent = '¿Lo hiciste?';
+    q.className = 'muted';
+
+    const btnSi = document.createElement('button');
+    const btnNo = document.createElement('button');
+    [btnSi, btnNo].forEach(b=>{
+      b.className='btn';
+      b.style.padding='6px 10px';
+    });
+    btnSi.textContent='Sí';
+    btnNo.textContent='No';
+
+    const paintStatus = ()=>{
+      btnSi.style.filter = (entry.status==='si') ? 'brightness(1.2)' : 'none';
+      btnNo.style.filter = (entry.status==='no') ? 'brightness(1.2)' : 'none';
+    };
+    paintStatus();
+
+    btnSi.onclick = ()=>{ entry.status='si'; saveDiary(data); paintStatus(); };
+    btnNo.onclick = ()=>{ entry.status='no'; saveDiary(data); paintStatus(); };
+
+    statusWrap.append(q, btnSi, btnNo);
+
+    // ----- Comentarios (hilo simple) -----
+    const commentsWrap = document.createElement('div');
+    commentsWrap.style.marginTop='6px';
+
+    const addCBtn = document.createElement('button');
+    addCBtn.className='btn';
+    addCBtn.textContent='Añadir comentario';
+    addCBtn.style.padding='6px 10px';
+
+    const form = document.createElement('div');
+    form.style.display='none';
+    form.style.marginTop='6px';
+    form.innerHTML = `
+      <textarea rows="3" placeholder="Escribe tu comentario…"></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+        <a class="btn" data-act="cancel">Cancelar</a>
+        <a class="btn" data-act="save">Guardar</a>
+      </div>
+    `;
+
+    addCBtn.onclick = ()=>{ form.style.display = (form.style.display==='none'?'block':'none'); };
+
+    form.querySelector('[data-act="cancel"]').onclick = ()=>{ form.style.display='none'; };
+    form.querySelector('[data-act="save"]').onclick = ()=>{
+      const ta = form.querySelector('textarea');
+      const txt = (ta.value||'').trim();
+      if(!txt) return;
+      entry.comments = entry.comments || [];
+      entry.comments.push({ id: uid(), text: txt, ts: todayISO() });
+      saveDiary(data);
+      ta.value=''; form.style.display='none';
+      renderDiary(parseInt(localStorage.getItem(PAGE_KEY)||'1',10));
+    };
+
+    const listC = document.createElement('div');
+    (entry.comments||[]).forEach(c=>{
+      const row = document.createElement('div');
+      row.className='item';
+      row.style.display='flex';
+      row.style.justifyContent='space-between';
+      row.style.alignItems='center';
+      
+      const textWrap = document.createElement('div');
+      const s = document.createElement('span');
+      s.textContent = `${c.text} — `;
+      const m = document.createElement('span');
+      m.className='muted';
+      m.textContent = new Date(c.ts).toLocaleString();
+      textWrap.append(s, m);
+      
+      const delComment = document.createElement('button');
+      delComment.className='del';
+      delComment.title='Eliminar comentario';
+      delComment.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/></svg>`;
+      delComment.onclick = ()=>{
+        if(!confirm('¿Eliminar este comentario?')) return;
+        entry.comments = entry.comments.filter(x => x.id !== c.id);
+        saveDiary(data);
+        renderDiary(parseInt(localStorage.getItem(PAGE_KEY)||'1',10));
+      };
+      const editComment = document.createElement('button');
+      editComment.className='del';
+      editComment.title='Editar comentario';
+      editComment.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+      editComment.onclick = ()=>{
+        const editForm = document.createElement('div');
+        editForm.style.marginTop='6px';
+        editForm.innerHTML = `
+          <textarea rows="2" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">${(c.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+          <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button class="btn" data-act="cancel">Cancelar</button>
+            <button class="btn" data-act="save">Guardar</button>
+          </div>
+        `;
+        
+        textWrap.style.display='none';
+        editComment.style.display='none';
+        delComment.style.display='none';
+        row.appendChild(editForm);
+        
+        editForm.querySelector('[data-act="cancel"]').onclick = ()=>{
+          editForm.remove();
+          textWrap.style.display='';
+          editComment.style.display='';
+          delComment.style.display='';
+        };
+        
+        editForm.querySelector('[data-act="save"]').onclick = ()=>{
+          const newText = editForm.querySelector('textarea').value.trim();
+          if(!newText) return;
+          c.text = newText;
+          saveDiary(data);
+          renderDiary(parseInt(localStorage.getItem(PAGE_KEY)||'1',10));
+        };
+      };
+      row.append(textWrap, editComment, delComment);
+      listC.appendChild(row);
+    });
+
+    commentsWrap.append(addCBtn, form, listC);
+
+    const head = document.createElement('div');
+    // Botón eliminar entrada
+    const delEntry = document.createElement('button');
+    delEntry.className='del';
+    delEntry.title='Eliminar entrada';
+    delEntry.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/></svg>`;
+    delEntry.onclick = ()=>{
+      if(!confirm('¿Seguro que quieres eliminar esta entrada?')) return;
+      const diaryData = loadDiary();
+      const filtered = diaryData.filter(e => e.id !== entry.id);
+      saveDiary(filtered);
+      renderDiary(parseInt(localStorage.getItem(PAGE_KEY)||'1',10));
+    };
+    // Botón editar entrada
+    const editEntry = document.createElement('button');
+    editEntry.className='del';
+    editEntry.title='Editar entrada';
+    editEntry.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+    editEntry.onclick = ()=>{
+      // Crear formulario de edición
+      const editForm = document.createElement('div');
+      editForm.style.marginTop='10px';
+      editForm.innerHTML = `
+        <input type="text" value="${(entry.title||'').replace(/"/g,'&quot;')}" placeholder="Título" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">
+        <textarea rows="4" placeholder="Texto" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">${(entry.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn" data-act="cancel">Cancelar</button>
+          <button class="btn" data-act="save">Guardar</button>
+        </div>
+      `;
+      
+      // Mostrar formulario, ocultar contenido
+      body.style.display='none';
+      statusWrap.style.display='none';
+      commentsWrap.style.display='none';
+      toggle.style.display='none';
+      editEntry.style.display='none';
+      delEntry.style.display='none';
+      item.appendChild(editForm);
+      
+      // Cancelar
+      editForm.querySelector('[data-act="cancel"]').onclick = ()=>{
+        editForm.remove();
+        body.style.display='';
+        statusWrap.style.display='';
+        commentsWrap.style.display='';
+        toggle.style.display='';
+        editEntry.style.display='';
+        delEntry.style.display='';
+      };
+      
+      // Guardar
+      editForm.querySelector('[data-act="save"]').onclick = ()=>{
+        const newTitle = editForm.querySelector('input').value.trim();
+        const newText = editForm.querySelector('textarea').value.trim();
+        entry.title = newTitle;
+        entry.text = newText;
+        saveDiary(data);
+        renderDiary(parseInt(localStorage.getItem(PAGE_KEY)||'1',10));
+      };
+    };
+    // Botón de favorito
+    const favBtn = document.createElement('button');
+    favBtn.className='del';
+    favBtn.title='Marcar como favorito';
+    favBtn.style.fontSize='18px';
+    favBtn.style.padding='4px 8px';
+    favBtn.textContent = entry.favorite ? '❤️' : '🤍';
+    favBtn.onclick = ()=>{
+      entry.favorite = !entry.favorite;
+      saveDiary(data);
+      favBtn.textContent = entry.favorite ? '❤️' : '🤍';
+    };
+
+    // Rating de estrellas
+    const ratingWrap = document.createElement('span');
+    ratingWrap.style.display='inline-flex';
+    ratingWrap.style.gap='2px';
+    for(let i=1; i<=5; i++){
+      const star = document.createElement('button');
+      star.className='del';
+      star.style.fontSize='16px';
+      star.style.padding='2px 4px';
+      star.textContent = i <= (entry.rating||0) ? '⭐' : '☆';
+      star.onclick = ()=>{
+        entry.rating = i;
+        saveDiary(data);
+        renderDiary(parseInt(localStorage.getItem(PAGE_KEY)||'1',10));
+      };
+      ratingWrap.appendChild(star);
+    }
+
+    head.append(title, meta, toggle, favBtn, ratingWrap, editEntry, delEntry);
+    head.style.display='flex'; head.style.gap='6px'; head.style.flexWrap='wrap';
+
+    item.append(head, body, statusWrap, commentsWrap);
+    list.appendChild(item);
+  });
+
+  $('#pageLabel').textContent = `${page}/${totalPages}`;
+  $('#prevPage').onclick = ()=> renderDiary(page-1);
+  $('#nextPage').onclick = ()=> renderDiary(page+1);
+}
+
+function wireDiary(){
+  const ttl = $('#ideaTitle');
+  const txt = $('#ideaText');
+  const btn = $('#addIdeaBtn');
+  const cc  = $('#charCount');
+
+  txt.addEventListener('input', ()=> cc.textContent = `${txt.value.length} / 5000`);
+  cc.textContent = `${txt.value.length} / 5000`;
+
+  btn.addEventListener('click', ()=>{
+    const title = ttl.value.trim();
+    const text  = txt.value.trim();
+    if(!title && !text) return;
+
+    const data = loadDiary();
+    data.push({ id: uid(), title, text, ts: todayISO(), status:null, comments:[] });
+    saveDiary(data);
+    ttl.value=''; txt.value=''; cc.textContent='0 / 5000';
+    renderDiary(1);
+  });
+// ===== FILTROS: Toggle y listeners =====
+  const toggleBtn = $('#diaryFiltersToggle');
+  const panel = $('#diaryFiltersPanel');
+  const arrow = $('#diaryFilterArrow');
+  const clearBtn = $('#diaryClearFilters');
+  
+  toggleBtn.addEventListener('click', ()=>{
+    const isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    arrow.textContent = isOpen ? '▼' : '▲';
+  });
+
+  // Aplicar filtros automáticamente al cambiar cualquier filtro
+  const filters = $$('.diaryFilter');
+  filters.forEach(filter => {
+    filter.addEventListener('change', ()=>{
+      renderDiary(1); // volver a página 1 al filtrar
+    });
+  });
+
+  // Limpiar todos los filtros
+  clearBtn.addEventListener('click', ()=>{
+    $('#diaryFilterDone').checked = false;
+    $('#diaryFilterNotDone').checked = false;
+    $('#diaryFilterFav').checked = false;
+    $('#diaryFilterNotFav').checked = false;
+    document.querySelector('input[name="diaryRating"][value="0"]').checked = true;
+    renderDiary(1);
+  });
+  const savedPage = parseInt(localStorage.getItem(PAGE_KEY)||'1',10);
+  renderDiary(savedPage);
+}
+
+// ====== Diario de Outfits ======
+const OUTFITS_KEY  = 'veilnet_outfits_v1';
+const OUTFITS_PAGE = 'veilnet_outfits_page';
+const OUTFITS_PER  = 5;
+
+function loadOutfits(){ try{
+  return JSON.parse(localStorage.getItem(OUTFITS_KEY)) || [];
+}catch{ return []; } }
+function saveOutfits(arr){
+  localStorage.setItem(OUTFITS_KEY, JSON.stringify(arr));
+}
+
+// Nueva función: guarda archivos en IndexedDB y devuelve IDs
+async function saveFilesToIndexedDB(fileList, max=3){
+  const files = Array.from(fileList||[]).slice(0, max);
+  const ids = [];
+  
+  for(const file of files){
+    const id = uid();
+    await saveImageDB(id, file);
+    ids.push(id);
+  }
+  return ids;
+}
+
+// pinta mini-preview tras elegir archivos (desde IndexedDB)
+async function paintOutPreview(imgIds){
+  const box = $('#outPreview');
+  box.innerHTML='';
+  
+  for(const id of imgIds){
+    const src = await getImageURL(id);
+    if(!src) continue;
+    
+    const row = document.createElement('div');
+    row.className='item';
+    row.style.alignItems='center';
+    row.style.gap='12px';
+    row.innerHTML = `<img src="${src}" alt="preview" style="width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--border)" />`;
+    box.appendChild(row);
+  }
+}
+
+async function renderOutfits(page=1){
+  const list = $('#outList');
+  let data = loadOutfits()  // <-- cambiar "const" por "let"
+    .map(x=> ({ status:null, comments:[], imgs:[], favorite:false, rating:0, ...x }))
+    .sort((a,b)=> new Date(b.ts) - new Date(a.ts));
+
+  // ===== FILTROS =====
+  const filterDone = $('#outfitFilterDone')?.checked;
+  const filterNotDone = $('#outfitFilterNotDone')?.checked;
+  const filterFav = $('#outfitFilterFav')?.checked;
+  const filterNotFav = $('#outfitFilterNotFav')?.checked;
+  const filterRating = parseInt(document.querySelector('input[name="outfitRating"]:checked')?.value || '0');
+
+  // Aplicar filtros
+  data = data.filter(entry => {
+    if(filterDone && entry.status !== 'si') return false;
+    if(filterNotDone && entry.status !== 'no') return false;
+    if(filterFav && !entry.favorite) return false;
+    if(filterNotFav && entry.favorite) return false;
+    if(filterRating > 0 && (entry.rating || 0) < filterRating) return false;
+    return true;
+  });
+  // ===== FIN FILTROS =====
+
+  const total = Math.max(1, Math.ceil(data.length / OUTFITS_PER));
+  if(page<1) page=1; if(page>total) page=total;
+  localStorage.setItem(OUTFITS_PAGE, String(page));
+
+  list.innerHTML='';
+  const start = (page-1)*OUTFITS_PER;
+  const chunk = data.slice(start, start+OUTFITS_PER);
+
+  chunk.forEach(entry=>{
+    const item   = document.createElement('div');
+    item.className='item';
+
+    // cabecera
+    const head = document.createElement('div');
+    head.style.display='flex';
+    head.style.gap='6px'; head.style.flexWrap='wrap';
+    const title = document.createElement('b');
+    title.textContent = entry.title || '(Sin título)';
+    const meta = document.createElement('span');
+    meta.className='muted';
+    meta.textContent = ' — ' + new Date(entry.ts).toLocaleString();
+    const toggle = document.createElement('span');
+    toggle.className='toggle'; toggle.textContent=' Ver más';
+    // Botón eliminar entrada
+    const delEntry = document.createElement('button');
+    delEntry.className='del';
+    delEntry.title='Eliminar entrada';
+    delEntry.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/></svg>`;
+    delEntry.onclick = async ()=>{
+      if(!confirm('¿Seguro que quieres eliminar este outfit?')) return;
+      // Eliminar imágenes de IndexedDB
+      for(const imgId of (entry.imgs||[])){
+        await deleteImageDB(imgId);
+      }
+      // Eliminar entrada
+      const outfitData = loadOutfits();
+      const filtered = outfitData.filter(e => e.id !== entry.id);
+      saveOutfits(filtered);
+      renderOutfits(parseInt(localStorage.getItem(OUTFITS_PAGE)||'1',10));
+    };
+    // Botón editar entrada
+    const editEntry = document.createElement('button');
+    editEntry.className='del';
+    editEntry.title='Editar entrada';
+    editEntry.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+    editEntry.onclick = ()=>{
+      // Crear formulario de edición
+      const editForm = document.createElement('div');
+      editForm.style.marginTop='10px';
+      editForm.innerHTML = `
+        <input type="text" value="${(entry.title||'').replace(/"/g,'&quot;')}" placeholder="Título" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">
+        <textarea rows="4" placeholder="Texto" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">${(entry.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn" data-act="cancel">Cancelar</button>
+          <button class="btn" data-act="save">Guardar</button>
+        </div>
+      `;
+      
+      // Mostrar formulario, ocultar contenido
+      body.style.display='none';
+      gallery.style.display='none';
+      statusWrap.style.display='none';
+      commentsWrap.style.display='none';
+      toggle.style.display='none';
+      editEntry.style.display='none';
+      delEntry.style.display='none';
+      item.appendChild(editForm);
+      
+      // Cancelar
+      editForm.querySelector('[data-act="cancel"]').onclick = ()=>{
+        editForm.remove();
+        body.style.display='';
+        gallery.style.display='';
+        statusWrap.style.display='';
+        commentsWrap.style.display='';
+        toggle.style.display='';
+        editEntry.style.display='';
+        delEntry.style.display='';
+      };
+      
+      // Guardar
+      editForm.querySelector('[data-act="save"]').onclick = ()=>{
+        const newTitle = editForm.querySelector('input').value.trim();
+        const newText = editForm.querySelector('textarea').value.trim();
+        entry.title = newTitle;
+        entry.text = newText;
+        saveOutfits(data);
+        renderOutfits(parseInt(localStorage.getItem(OUTFITS_PAGE)||'1',10));
+      };
+    };
+    // Botón de favorito
+    const favBtn = document.createElement('button');
+    favBtn.className='del';
+    favBtn.title='Marcar como favorito';
+    favBtn.style.fontSize='18px';
+    favBtn.style.padding='4px 8px';
+    favBtn.textContent = entry.favorite ? '❤️' : '🤍';
+    favBtn.onclick = ()=>{
+      entry.favorite = !entry.favorite;
+      saveOutfits(data);
+      favBtn.textContent = entry.favorite ? '❤️' : '🤍';
+    };
+
+    // Rating de estrellas
+    const ratingWrap = document.createElement('span');
+    ratingWrap.style.display='inline-flex';
+    ratingWrap.style.gap='2px';
+    for(let i=1; i<=5; i++){
+      const star = document.createElement('button');
+      star.className='del';
+      star.style.fontSize='16px';
+      star.style.padding='2px 4px';
+      star.textContent = i <= (entry.rating||0) ? '⭐' : '☆';
+      star.onclick = ()=>{
+        entry.rating = i;
+        saveOutfits(data);
+        renderOutfits(parseInt(localStorage.getItem(OUTFITS_PAGE)||'1',10));
+      };
+      ratingWrap.appendChild(star);
+    }
+    head.append(title, meta, toggle, favBtn, ratingWrap, editEntry, delEntry);
+
+    // cuerpo: texto
+    const body = document.createElement('div');
+    body.style.display='none'; body.style.marginTop='6px';
+    body.textContent = entry.text || '';
+
+    // lookbook: thumbs + tacho por foto
+    const gallery = document.createElement('div');
+    gallery.style.display='grid';
+    gallery.style.gridTemplateColumns='repeat(auto-fill,minmax(120px,1fr))';
+    gallery.style.gap='8px';
+    gallery.style.marginTop='8px';
+
+    const paintGallery = async ()=>{
+      gallery.innerHTML='';
+      
+      for(let idx=0; idx < (entry.imgs||[]).length; idx++){
+        const imgId = entry.imgs[idx];
+        const src = await getImageURL(imgId); // carga desde IndexedDB
+        if(!src) continue;
+
+        const cell = document.createElement('div');
+        cell.className='item';
+        cell.style.padding='6px';
+        cell.style.display='flex';
+        cell.style.alignItems='center';
+        cell.style.justifyContent='center';
+        cell.style.position='relative';
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt='outfit';
+        img.style.width='100%';
+        img.style.height='140px';
+        img.style.objectFit='cover';
+        img.style.borderRadius='8px';
+        img.style.border='1px solid var(--border)';
+
+        const del = document.createElement('button');
+        del.className='del';
+        del.title='Eliminar foto';
+        del.style.position='absolute';
+        del.style.top='6px'; del.style.right='6px';
+        del.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/></svg>`;
+        del.onclick = async ()=>{
+          await deleteImageDB(imgId); // borra de IndexedDB
+          entry.imgs.splice(idx, 1);
+          saveOutfits(data);
+          await paintGallery();
+        };
+
+        cell.append(img, del);
+        gallery.appendChild(cell);
+      }
+      // Botón para añadir más fotos (solo si hay menos de 3)
+      if((entry.imgs||[]).length < 3){
+        const addMoreCell = document.createElement('div');
+        addMoreCell.className='item';
+        addMoreCell.style.padding='6px';
+        addMoreCell.style.display='flex';
+        addMoreCell.style.alignItems='center';
+        addMoreCell.style.justifyContent='center';
+        addMoreCell.style.minHeight='140px';
+        addMoreCell.style.cursor='pointer';
+        addMoreCell.style.border='2px dashed var(--border)';
+        addMoreCell.style.borderRadius='8px';
+        addMoreCell.style.transition='all 0.2s';
+        addMoreCell.innerHTML = `<div style="font-size:48px; color:var(--muted);">+</div>`;
+        
+        addMoreCell.onmouseenter = ()=> addMoreCell.style.borderColor='var(--fg)';
+        addMoreCell.onmouseleave = ()=> addMoreCell.style.borderColor='var(--border)';
+        
+        addMoreCell.onclick = ()=>{
+          const input = document.createElement('input');
+          input.type='file';
+          input.accept='image/*';
+          input.multiple = true;
+          input.onchange = async ()=>{
+            const remaining = 3 - (entry.imgs||[]).length;
+            const newImgIds = await saveFilesToIndexedDB(input.files, remaining);
+            entry.imgs = [...(entry.imgs||[]), ...newImgIds];
+            saveOutfits(data);
+            paintGallery();
+          };
+          input.click();
+        };
+        
+        gallery.appendChild(addMoreCell);
+      }
+    };
+
+    paintGallery(); // sin "await"
+
+    // “¿Lo probaste?  Sí / No”
+    const statusWrap = document.createElement('div');
+    statusWrap.style.display='flex';
+    statusWrap.style.gap='8px';
+    statusWrap.style.alignItems='center';
+    statusWrap.style.marginTop='8px';
+    const q = document.createElement('span'); q.textContent='¿Lo probaste?'; q.className='muted';
+    const btnSi = document.createElement('button'); btnSi.className='btn'; btnSi.textContent='Sí'; btnSi.style.padding='6px 10px';
+    const btnNo = document.createElement('button'); btnNo.className='btn'; btnNo.textContent='No'; btnNo.style.padding='6px 10px';
+    const paintStatus = ()=>{
+      btnSi.style.filter = (entry.status==='si') ? 'brightness(1.2)' : 'none';
+      btnNo.style.filter = (entry.status==='no') ? 'brightness(1.2)' : 'none';
+    };
+    paintStatus();
+    btnSi.onclick = ()=>{ entry.status='si'; saveOutfits(data); paintStatus(); };
+    btnNo.onclick = ()=>{ entry.status='no'; saveOutfits(data); paintStatus(); };
+    statusWrap.append(q, btnSi, btnNo);
+
+    // comentarios
+    const commentsWrap = document.createElement('div');
+    commentsWrap.style.marginTop='6px';
+    const addCBtn = document.createElement('button'); addCBtn.className='btn'; addCBtn.textContent='Añadir comentario'; addCBtn.style.padding='6px 10px';
+    const form = document.createElement('div'); form.style.display='none'; form.style.marginTop='6px';
+    form.innerHTML = `
+      <textarea rows="3" placeholder="Escribe tu comentario…"></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+        <a class="btn" data-act="cancel">Cancelar</a>
+        <a class="btn" data-act="save">Guardar</a>
+      </div>`;
+    addCBtn.onclick = ()=>{ form.style.display = (form.style.display==='none'?'block':'none'); };
+    form.querySelector('[data-act="cancel"]').onclick = ()=>{ form.style.display='none'; };
+    form.querySelector('[data-act="save"]').onclick = ()=>{
+      const ta = form.querySelector('textarea');
+      const txt = (ta.value||'').trim();
+      if(!txt) return;
+      entry.comments = entry.comments || [];
+      entry.comments.push({ id: uid(), text: txt, ts: todayISO() });
+      saveOutfits(data);
+      ta.value=''; form.style.display='none';
+      renderOutfits(parseInt(localStorage.getItem(OUTFITS_PAGE)||'1',10));
+    };
+    const listC = document.createElement('div');
+    (entry.comments||[]).forEach(c=>{
+      const row = document.createElement('div');
+      row.className='item';
+      row.style.display='flex';
+      row.style.justifyContent='space-between';
+      row.style.alignItems='center';
+      
+      const textWrap = document.createElement('div');
+      const s = document.createElement('span');
+      s.textContent = `${c.text} — `;
+      const m = document.createElement('span');
+      m.className='muted';
+      m.textContent = new Date(c.ts).toLocaleString();
+      textWrap.append(s, m);
+      
+      const delComment = document.createElement('button');
+      delComment.className='del';
+      delComment.title='Eliminar comentario';
+      delComment.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/></svg>`;
+      delComment.onclick = ()=>{
+        if(!confirm('¿Eliminar este comentario?')) return;
+        entry.comments = entry.comments.filter(x => x.id !== c.id);
+        saveOutfits(data);
+        renderOutfits(parseInt(localStorage.getItem(OUTFITS_PAGE)||'1',10));
+      };
+      const editComment = document.createElement('button');
+      editComment.className='del';
+      editComment.title='Editar comentario';
+      editComment.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+      editComment.onclick = ()=>{
+        const editForm = document.createElement('div');
+        editForm.style.marginTop='6px';
+        editForm.innerHTML = `
+          <textarea rows="2" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">${(c.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+          <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button class="btn" data-act="cancel">Cancelar</button>
+            <button class="btn" data-act="save">Guardar</button>
+          </div>
+        `;
+        
+        textWrap.style.display='none';
+        editComment.style.display='none';
+        delComment.style.display='none';
+        row.appendChild(editForm);
+        
+        editForm.querySelector('[data-act="cancel"]').onclick = ()=>{
+          editForm.remove();
+          textWrap.style.display='';
+          editComment.style.display='';
+          delComment.style.display='';
+        };
+        
+        editForm.querySelector('[data-act="save"]').onclick = ()=>{
+          const newText = editForm.querySelector('textarea').value.trim();
+          if(!newText) return;
+          c.text = newText;
+          saveOutfits(data);
+          renderOutfits(parseInt(localStorage.getItem(OUTFITS_PAGE)||'1',10));
+        };
+      };
+      row.append(textWrap, editComment, delComment);
+      listC.appendChild(row);
+    });
+    commentsWrap.append(addCBtn, form, listC);
+
+    // toggle cuerpo
+    let open=false;
+    toggle.onclick = ()=>{
+      open=!open;
+      body.style.display = open?'block':'none';
+      toggle.textContent = open?' Ver menos':' Ver más';
+    };
+
+    item.append(head, body, gallery, statusWrap, commentsWrap);
+    list.appendChild(item);
+  });
+
+  $('#outPage').textContent = `${page}/${total}`;
+  $('#outPrev').onclick = ()=> renderOutfits(page-1);
+  $('#outNext').onclick = ()=> renderOutfits(page+1);
+}
+
+function wireOutfits(){
+  const ttl = $('#outTitle');
+  const txt = $('#outText');
+  const cc  = $('#outCharCount');
+  const files= $('#outFiles');
+  const btn = $('#addOutBtn');
+
+  let pendingImgs = []; // ahora guarda IDs, no base64
+
+  txt.addEventListener('input', ()=> cc.textContent = `${txt.value.length} / 5000`);
+  cc.textContent = `${txt.value.length} / 5000`;
+
+  files.addEventListener('change', async ()=>{
+    pendingImgs = await saveFilesToIndexedDB(files.files, 3); // guarda en IndexedDB
+    await paintOutPreview(pendingImgs); // muestra desde IndexedDB
+  });
+
+  btn.addEventListener('click', ()=>{
+    const title = ttl.value.trim();
+    const text  = txt.value.trim();
+    if(!title && !text && pendingImgs.length===0) return;
+
+    const data = loadOutfits();
+    data.push({ 
+      id: uid(), 
+      title, 
+      text, 
+      ts: todayISO(), 
+      imgs: [...pendingImgs], // guarda IDs (no base64)
+      status: null, 
+      comments: [] 
+    });
+    saveOutfits(data);
+
+    // reset UI
+    ttl.value=''; txt.value=''; cc.textContent='0 / 5000';
+    files.value=''; pendingImgs = []; paintOutPreview([]);
+    renderOutfits(1);
+  });
+// ===== FILTROS: Toggle y listeners =====
+  const toggleBtn = $('#outfitFiltersToggle');
+  const panel = $('#outfitFiltersPanel');
+  const arrow = $('#outfitFilterArrow');
+  const clearBtn = $('#outfitClearFilters');
+  
+  toggleBtn.addEventListener('click', ()=>{
+    const isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    arrow.textContent = isOpen ? '▼' : '▲';
+  });
+
+  // Aplicar filtros automáticamente al cambiar cualquier filtro
+  const filters = $$('.outfitFilter');
+  filters.forEach(filter => {
+    filter.addEventListener('change', ()=>{
+      renderOutfits(1);
+    });
+  });
+
+  // Limpiar todos los filtros
+  clearBtn.addEventListener('click', ()=>{
+    $('#outfitFilterDone').checked = false;
+    $('#outfitFilterNotDone').checked = false;
+    $('#outfitFilterFav').checked = false;
+    $('#outfitFilterNotFav').checked = false;
+    document.querySelector('input[name="outfitRating"][value="0"]').checked = true;
+    renderOutfits(1);
+  });
+  // ===== FIN FILTROS =====
+
+  const saved = parseInt(localStorage.getItem(OUTFITS_PAGE)||'1',10);
+  renderOutfits(saved);
+}
+
+// ====== Diario de Makeup ======
+const MAKEUP_KEY  = 'veilnet_makeup_v1';
+const MAKEUP_PAGE = 'veilnet_makeup_page';
+const MAKEUP_PER  = 5;
+
+function loadMakeup(){ try{
+  return JSON.parse(localStorage.getItem(MAKEUP_KEY)) || [];
+}catch{ return []; } }
+
+function saveMakeup(arr){
+  localStorage.setItem(MAKEUP_KEY, JSON.stringify(arr));
+}
+
+async function renderMakeup(page=1){
+  const list = $('#makeupList');
+  let data = loadMakeup()  // <-- cambiar "const" por "let"
+    .map(x=> ({ status:null, comments:[], imgs:[], favorite:false, rating:0, ...x }))
+    .sort((a,b)=> new Date(b.ts) - new Date(a.ts));
+
+  // ===== FILTROS =====
+  const filterDone = $('#makeupFilterDone')?.checked;
+  const filterNotDone = $('#makeupFilterNotDone')?.checked;
+  const filterFav = $('#makeupFilterFav')?.checked;
+  const filterNotFav = $('#makeupFilterNotFav')?.checked;
+  const filterRating = parseInt(document.querySelector('input[name="makeupRating"]:checked')?.value || '0');
+
+  // Aplicar filtros
+  data = data.filter(entry => {
+    if(filterDone && entry.status !== 'si') return false;
+    if(filterNotDone && entry.status !== 'no') return false;
+    if(filterFav && !entry.favorite) return false;
+    if(filterNotFav && entry.favorite) return false;
+    if(filterRating > 0 && (entry.rating || 0) < filterRating) return false;
+    return true;
+  });
+  // ===== FIN FILTROS =====
+
+  const total = Math.max(1, Math.ceil(data.length / MAKEUP_PER));
+  if(page<1) page=1; if(page>total) page=total;
+  localStorage.setItem(MAKEUP_PAGE, String(page));
+
+  list.innerHTML='';
+  const start = (page-1)*MAKEUP_PER;
+  const chunk = data.slice(start, start+MAKEUP_PER);
+
+  chunk.forEach(entry=>{
+    const item   = document.createElement('div');
+    item.className='item';
+
+    // cabecera
+    const head = document.createElement('div');
+    head.style.display='flex';
+    head.style.gap='6px'; head.style.flexWrap='wrap';
+    const title = document.createElement('b');
+    title.textContent = entry.title || '(Sin título)';
+    const meta = document.createElement('span');
+    meta.className='muted';
+    meta.textContent = ' — ' + new Date(entry.ts).toLocaleString();
+    const toggle = document.createElement('span');
+    toggle.className='toggle'; toggle.textContent=' Ver más';
+
+    // Botón eliminar entrada
+    const delEntry = document.createElement('button');
+    delEntry.className='del';
+    delEntry.title='Eliminar entrada';
+    delEntry.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/></svg>`;
+    delEntry.onclick = async ()=>{
+      if(!confirm('¿Seguro que quieres eliminar este look?')) return;
+      for(const imgId of (entry.imgs||[])){
+        await deleteImageDB(imgId);
+      }
+      const makeupData = loadMakeup();
+      const filtered = makeupData.filter(e => e.id !== entry.id);
+      saveMakeup(filtered);
+      renderMakeup(parseInt(localStorage.getItem(MAKEUP_PAGE)||'1',10));
+    };
+
+    // Botón editar entrada
+    const editEntry = document.createElement('button');
+    editEntry.className='del';
+    editEntry.title='Editar entrada';
+    editEntry.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+    editEntry.onclick = ()=>{
+      const editForm = document.createElement('div');
+      editForm.style.marginTop='10px';
+      editForm.innerHTML = `
+        <input type="text" value="${(entry.title||'').replace(/"/g,'&quot;')}" placeholder="Título" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">
+        <textarea rows="4" placeholder="Texto" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">${(entry.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn" data-act="cancel">Cancelar</button>
+          <button class="btn" data-act="save">Guardar</button>
+        </div>
+      `;
+      
+      body.style.display='none';
+      gallery.style.display='none';
+      statusWrap.style.display='none';
+      commentsWrap.style.display='none';
+      toggle.style.display='none';
+      editEntry.style.display='none';
+      delEntry.style.display='none';
+      item.appendChild(editForm);
+      
+      editForm.querySelector('[data-act="cancel"]').onclick = ()=>{
+        editForm.remove();
+        body.style.display='';
+        gallery.style.display='';
+        statusWrap.style.display='';
+        commentsWrap.style.display='';
+        toggle.style.display='';
+        editEntry.style.display='';
+        delEntry.style.display='';
+      };
+      
+      editForm.querySelector('[data-act="save"]').onclick = ()=>{
+        const newTitle = editForm.querySelector('input').value.trim();
+        const newText = editForm.querySelector('textarea').value.trim();
+        entry.title = newTitle;
+        entry.text = newText;
+        saveMakeup(data);
+        renderMakeup(parseInt(localStorage.getItem(MAKEUP_PAGE)||'1',10));
+      };
+    };
+
+    // Botón de favorito
+    const favBtn = document.createElement('button');
+    favBtn.className='del';
+    favBtn.title='Marcar como favorito';
+    favBtn.style.fontSize='18px';
+    favBtn.style.padding='4px 8px';
+    favBtn.textContent = entry.favorite ? '❤️' : '🤍';
+    favBtn.onclick = ()=>{
+      entry.favorite = !entry.favorite;
+      saveMakeup(data);
+      favBtn.textContent = entry.favorite ? '❤️' : '🤍';
+    };
+
+    // Rating de estrellas
+    const ratingWrap = document.createElement('span');
+    ratingWrap.style.display='inline-flex';
+    ratingWrap.style.gap='2px';
+    for(let i=1; i<=5; i++){
+      const star = document.createElement('button');
+      star.className='del';
+      star.style.fontSize='16px';
+      star.style.padding='2px 4px';
+      star.textContent = i <= (entry.rating||0) ? '⭐' : '☆';
+      star.onclick = ()=>{
+        entry.rating = i;
+        saveMakeup(data);
+        renderMakeup(parseInt(localStorage.getItem(MAKEUP_PAGE)||'1',10));
+      };
+      ratingWrap.appendChild(star);
+    }
+
+    head.append(title, meta, toggle, favBtn, ratingWrap, editEntry, delEntry);
+
+    // cuerpo: texto
+    const body = document.createElement('div');
+    body.style.display='none'; body.style.marginTop='6px';
+    body.textContent = entry.text || '';
+
+    // lookbook: thumbs + tacho por foto
+    const gallery = document.createElement('div');
+    gallery.style.display='grid';
+    gallery.style.gridTemplateColumns='repeat(auto-fill,minmax(120px,1fr))';
+    gallery.style.gap='8px';
+    gallery.style.marginTop='8px';
+
+    const paintGallery = async ()=>{
+      gallery.innerHTML='';
+      
+      for(let idx=0; idx < (entry.imgs||[]).length; idx++){
+        const imgId = entry.imgs[idx];
+        const src = await getImageURL(imgId);
+        if(!src) continue;
+
+        const cell = document.createElement('div');
+        cell.className='item';
+        cell.style.padding='6px';
+        cell.style.display='flex';
+        cell.style.alignItems='center';
+        cell.style.justifyContent='center';
+        cell.style.position='relative';
+
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt='makeup';
+        img.style.width='100%';
+        img.style.height='140px';
+        img.style.objectFit='cover';
+        img.style.borderRadius='8px';
+        img.style.border='1px solid var(--border)';
+
+        const del = document.createElement('button');
+        del.className='del';
+        del.title='Eliminar foto';
+        del.style.position='absolute';
+        del.style.top='6px'; del.style.right='6px';
+        del.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/></svg>`;
+        del.onclick = async ()=>{
+          await deleteImageDB(imgId);
+          entry.imgs.splice(idx, 1);
+          saveMakeup(data);
+          paintGallery();
+        };
+
+        cell.append(img, del);
+        gallery.appendChild(cell);
+      }
+      // Botón para añadir más fotos (solo si hay menos de 3)
+      if((entry.imgs||[]).length < 3){
+        const addMoreCell = document.createElement('div');
+        addMoreCell.className='item';
+        addMoreCell.style.padding='6px';
+        addMoreCell.style.display='flex';
+        addMoreCell.style.alignItems='center';
+        addMoreCell.style.justifyContent='center';
+        addMoreCell.style.minHeight='140px';
+        addMoreCell.style.cursor='pointer';
+        addMoreCell.style.border='2px dashed var(--border)';
+        addMoreCell.style.borderRadius='8px';
+        addMoreCell.style.transition='all 0.2s';
+        addMoreCell.innerHTML = `<div style="font-size:48px; color:var(--muted);">+</div>`;
+        
+        addMoreCell.onmouseenter = ()=> addMoreCell.style.borderColor='var(--fg)';
+        addMoreCell.onmouseleave = ()=> addMoreCell.style.borderColor='var(--border)';
+        
+        addMoreCell.onclick = ()=>{
+          const input = document.createElement('input');
+          input.type='file';
+          input.accept='image/*';
+          input.multiple = true;
+          input.onchange = async ()=>{
+            const remaining = 3 - (entry.imgs||[]).length;
+            const newImgIds = await saveFilesToIndexedDB(input.files, remaining);
+            entry.imgs = [...(entry.imgs||[]), ...newImgIds];
+            saveMakeup(data);
+            paintGallery();
+          };
+          input.click();
+        };
+        
+        gallery.appendChild(addMoreCell);
+      }
+    };
+    paintGallery();
+
+    // "¿Lo usaste?  Sí / No"
+    const statusWrap = document.createElement('div');
+    statusWrap.style.display='flex';
+    statusWrap.style.gap='8px';
+    statusWrap.style.alignItems='center';
+    statusWrap.style.marginTop='8px';
+    const q = document.createElement('span'); q.textContent='¿Lo usaste?'; q.className='muted';
+    const btnSi = document.createElement('button'); btnSi.className='btn'; btnSi.textContent='Sí'; btnSi.style.padding='6px 10px';
+    const btnNo = document.createElement('button'); btnNo.className='btn'; btnNo.textContent='No'; btnNo.style.padding='6px 10px';
+    const paintStatus = ()=>{
+      btnSi.style.filter = (entry.status==='si') ? 'brightness(1.2)' : 'none';
+      btnNo.style.filter = (entry.status==='no') ? 'brightness(1.2)' : 'none';
+    };
+    paintStatus();
+    btnSi.onclick = ()=>{ entry.status='si'; saveMakeup(data); paintStatus(); };
+    btnNo.onclick = ()=>{ entry.status='no'; saveMakeup(data); paintStatus(); };
+    statusWrap.append(q, btnSi, btnNo);
+
+    // comentarios
+    const commentsWrap = document.createElement('div');
+    commentsWrap.style.marginTop='6px';
+    const addCBtn = document.createElement('button'); addCBtn.className='btn'; addCBtn.textContent='Añadir comentario'; addCBtn.style.padding='6px 10px';
+    const form = document.createElement('div'); form.style.display='none'; form.style.marginTop='6px';
+    form.innerHTML = `
+      <textarea rows="3" placeholder="Escribe tu comentario…"></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+        <a class="btn" data-act="cancel">Cancelar</a>
+        <a class="btn" data-act="save">Guardar</a>
+      </div>`;
+    addCBtn.onclick = ()=>{ form.style.display = (form.style.display==='none'?'block':'none'); };
+    form.querySelector('[data-act="cancel"]').onclick = ()=>{ form.style.display='none'; };
+    form.querySelector('[data-act="save"]').onclick = ()=>{
+      const ta = form.querySelector('textarea');
+      const txt = (ta.value||'').trim();
+      if(!txt) return;
+      entry.comments = entry.comments || [];
+      entry.comments.push({ id: uid(), text: txt, ts: todayISO() });
+      saveMakeup(data);
+      ta.value=''; form.style.display='none';
+      renderMakeup(parseInt(localStorage.getItem(MAKEUP_PAGE)||'1',10));
+    };
+
+    const listC = document.createElement('div');
+    (entry.comments||[]).forEach(c=>{
+      const row = document.createElement('div');
+      row.className='item';
+      row.style.display='flex';
+      row.style.justifyContent='space-between';
+      row.style.alignItems='center';
+      
+      const textWrap = document.createElement('div');
+      const s = document.createElement('span');
+      s.textContent = `${c.text} — `;
+      const m = document.createElement('span');
+      m.className='muted';
+      m.textContent = new Date(c.ts).toLocaleString();
+      textWrap.append(s, m);
+      
+      const delComment = document.createElement('button');
+      delComment.className='del';
+      delComment.title='Eliminar comentario';
+      delComment.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/></svg>`;
+      delComment.onclick = ()=>{
+        if(!confirm('¿Eliminar este comentario?')) return;
+        entry.comments = entry.comments.filter(x => x.id !== c.id);
+        saveMakeup(data);
+        renderMakeup(parseInt(localStorage.getItem(MAKEUP_PAGE)||'1',10));
+      };
+
+      const editComment = document.createElement('button');
+      editComment.className='del';
+      editComment.title='Editar comentario';
+      editComment.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+      editComment.onclick = ()=>{
+        const editForm = document.createElement('div');
+        editForm.style.marginTop='6px';
+        editForm.innerHTML = `
+          <textarea rows="2" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">${(c.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+          <div style="display:flex; gap:8px; justify-content:flex-end;">
+            <button class="btn" data-act="cancel">Cancelar</button>
+            <button class="btn" data-act="save">Guardar</button>
+          </div>
+        `;
+        
+        textWrap.style.display='none';
+        editComment.style.display='none';
+        delComment.style.display='none';
+        row.appendChild(editForm);
+        
+        editForm.querySelector('[data-act="cancel"]').onclick = ()=>{
+          editForm.remove();
+          textWrap.style.display='';
+          editComment.style.display='';
+          delComment.style.display='';
+        };
+        
+        editForm.querySelector('[data-act="save"]').onclick = ()=>{
+          const newText = editForm.querySelector('textarea').value.trim();
+          if(!newText) return;
+          c.text = newText;
+          saveMakeup(data);
+          renderMakeup(parseInt(localStorage.getItem(MAKEUP_PAGE)||'1',10));
+        };
+      };
+      
+      row.append(textWrap, editComment, delComment);
+      listC.appendChild(row);
+    });
+
+    commentsWrap.append(addCBtn, form, listC);
+
+    // toggle cuerpo
+    let open=false;
+    toggle.onclick = ()=>{
+      open=!open;
+      body.style.display = open?'block':'none';
+      toggle.textContent = open?' Ver menos':' Ver más';
+    };
+
+    item.append(head, body, gallery, statusWrap, commentsWrap);
+    list.appendChild(item);
+  });
+
+  $('#makeupPage').textContent = `${page}/${total}`;
+  $('#makeupPrev').onclick = ()=> renderMakeup(page-1);
+  $('#makeupNext').onclick = ()=> renderMakeup(page+1);
+}
+
+function wireMakeup(){
+  const ttl = $('#makeupTitle');
+  const txt = $('#makeupText');
+  const cc  = $('#makeupCharCount');
+  const files= $('#makeupFiles');
+  const btn = $('#addMakeupBtn');
+
+  let pendingImgs = [];
+
+  txt.addEventListener('input', ()=> cc.textContent = `${txt.value.length} / 5000`);
+  cc.textContent = `${txt.value.length} / 5000`;
+
+  files.addEventListener('change', async ()=>{
+    pendingImgs = await saveFilesToIndexedDB(files.files, 3);
+    await paintOutPreview(pendingImgs);
+  });
+
+  btn.addEventListener('click', ()=>{
+    const title = ttl.value.trim();
+    const text  = txt.value.trim();
+    if(!title && !text && pendingImgs.length===0) return;
+
+    const data = loadMakeup();
+    data.push({ 
+      id: uid(), 
+      title, 
+      text, 
+      ts: todayISO(), 
+      imgs: [...pendingImgs],
+      status: null, 
+      comments: [] 
+    });
+    saveMakeup(data);
+
+    ttl.value=''; txt.value=''; cc.textContent='0 / 5000';
+    files.value=''; pendingImgs = []; paintOutPreview([]);
+    renderMakeup(1);
+  });
+// ===== FILTROS: Toggle y listeners =====
+  const toggleBtn = $('#makeupFiltersToggle');
+  const panel = $('#makeupFiltersPanel');
+  const arrow = $('#makeupFilterArrow');
+  const clearBtn = $('#makeupClearFilters');
+  
+  toggleBtn.addEventListener('click', ()=>{
+    const isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    arrow.textContent = isOpen ? '▼' : '▲';
+  });
+
+  // Aplicar filtros automáticamente al cambiar cualquier filtro
+  const filters = $$('.makeupFilter');
+  filters.forEach(filter => {
+    filter.addEventListener('change', ()=>{
+      renderMakeup(1);
+    });
+  });
+
+  // Limpiar todos los filtros
+  clearBtn.addEventListener('click', ()=>{
+    $('#makeupFilterDone').checked = false;
+    $('#makeupFilterNotDone').checked = false;
+    $('#makeupFilterFav').checked = false;
+    $('#makeupFilterNotFav').checked = false;
+    document.querySelector('input[name="makeupRating"][value="0"]').checked = true;
+    renderMakeup(1);
+  });
+  // ===== FIN FILTROS =====
+  const saved = parseInt(localStorage.getItem(MAKEUP_PAGE)||'1',10);
+  renderMakeup(saved);
+}
+
+    /* ------------- Checklists dinámicas (paneles restantes) ------------- */
+    // Cada panel tendrá su storageKey, ids (inputs y “mount”) y etiquetas.
+    const PANELS = {
+      prep:  { storageKey:'veilnet_prep_v1',  ids:{
+        text:'prepTaskText', sel:'prepTaskCat', newCat:'prepNewCat', addTask:'prepAddTask', addCat:'prepAddCat', mount:'prepDyn'
+      }},
+      cute:  { storageKey:'veilnet_cute_v1',  ids:{
+        text:'cuteTaskText', sel:'cuteTaskCat', newCat:'cuteNewCat', addTask:'cuteAddTask', addCat:'cuteAddCat', mount:'cuteDyn'
+      }},
+      darks: { storageKey:'veilnet_darks_v1', ids:{
+        text:'darksTaskText', sel:'darksTaskCat', newCat:'darksNewCat', addTask:'darksAddTask', addCat:'darksAddCat', mount:'darksDyn'
+      }},
+      otros: { storageKey:'veilnet_otros_v1', ids:{
+        text:'otrosTaskText', sel:'otrosTaskCat', newCat:'otrosNewCat', addTask:'otrosAddTask', addCat:'otrosAddCat', mount:'otrosDyn'
+      }},
+    };
+
+    // Carga/guarda estado por panel
+    function loadState(key){
+      try{
+        return JSON.parse(localStorage.getItem(key)) || { cats:[], tasks:[], lastReset: null };
+      }catch{ return { cats:[], tasks:[], lastReset:null }; }
+    }
+    function saveState(key, obj){
+      localStorage.setItem(key, JSON.stringify(obj));
+    }
+
+    // Reset semanal: si pasaron ≥7 días desde lastReset, marcar done=false en todas
+    function maybeWeeklyReset(key){
+      const s = loadState(key);
+      const now = todayISO();
+      if(!s.lastReset){
+        s.lastReset = now; saveState(key, s); return s;
+      }
+      if(daysBetween(s.lastReset, now) >= 7){
+        s.tasks = s.tasks.map(t=> ({...t, done:false}));
+        s.lastReset = now;
+        saveState(key, s);
+      }
+      return loadState(key);
+    }
+
+    // Rellena el <select> de categorías
+    function renderCats(panel){
+      const s = loadState(panel.storageKey);
+      const sel = $('#'+panel.ids.sel);
+      sel.innerHTML='';
+      // categoría “sin categoría” al inicio si no hay ninguna
+      const opt0 = document.createElement('option');
+      opt0.value=''; opt0.textContent='(Sin categoría)';
+      sel.appendChild(opt0);
+      s.cats.forEach(c=>{
+        const o = document.createElement('option');
+        o.value=c; o.textContent=c; sel.appendChild(o);
+      });
+    }
+
+    // === renderList con tacho en categoría + drag & drop de tareas ===
+function renderList(panel){
+  const mount = $('#'+panel.ids.mount);
+  const s = loadState(panel.storageKey);
+  mount.innerHTML='';
+
+  // mapa {cat -> tareas}
+  const groups = {};
+  const allCats = s.cats.length ? s.cats : ['']; // '' = Sin categoría
+  allCats.forEach(c=> groups[c]=[]);
+  s.tasks.forEach(t=>{
+    const c = t.cat || '';
+    if(!groups[c]) groups[c]=[];
+    groups[c].push(t);
+  });
+
+  // ítem tarea
+  const makeItem = (t) => {
+    const item = document.createElement('div');
+    item.className = 'item' + (t.done ? ' done' : '');
+    item.draggable = true;                        // <-- drag source
+    item.dataset.id = t.id;
+
+    const cb = document.createElement('input');
+    cb.type='checkbox'; cb.checked = !!t.done;
+    cb.onchange = ()=>{
+      const S = loadState(panel.storageKey);
+      S.tasks = S.tasks.map(x=> x.id===t.id ? {...x, done: cb.checked} : x);
+      saveState(panel.storageKey, S);
+      renderList(panel);
+    };
+
+    const sp = document.createElement('span');
+    sp.textContent = t.text;
+
+    const del = document.createElement('button');
+    del.className='del';
+    del.title='Eliminar tarea';
+    del.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+        <path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/>
+      </svg>`;
+    del.onclick = ()=>{
+      const S = loadState(panel.storageKey);
+      S.tasks = S.tasks.filter(x=> x.id!==t.id);
+      saveState(panel.storageKey, S);
+      renderList(panel);
+    };
+    const edit = document.createElement('button');
+    edit.className='del';
+    edit.title='Editar tarea';
+    edit.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+    edit.onclick = ()=>{
+      const editForm = document.createElement('div');
+      editForm.style.marginTop='6px';
+      editForm.innerHTML = `
+        <input type="text" value="${t.text.replace(/"/g,'&quot;')}" style="width:100%; padding:8px; margin-bottom:6px; background:var(--bg); color:var(--fg); border:1px solid var(--border); border-radius:4px;">
+        <div style="display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn" data-act="cancel">Cancelar</button>
+          <button class="btn" data-act="save">Guardar</button>
+        </div>
+      `;
+      
+      sp.style.display='none';
+      edit.style.display='none';
+      del.style.display='none';
+      item.appendChild(editForm);
+      
+      editForm.querySelector('[data-act="cancel"]').onclick = ()=>{
+        editForm.remove();
+        sp.style.display='';
+        edit.style.display='';
+        del.style.display='';
+      };
+      
+      editForm.querySelector('[data-act="save"]').onclick = ()=>{
+        const newText = editForm.querySelector('input').value.trim();
+        if(!newText) return;
+        const S = loadState(panel.storageKey);
+        S.tasks = S.tasks.map(x=> x.id===t.id ? {...x, text:newText} : x);
+        saveState(panel.storageKey, S);
+        renderList(panel);
+      };
+    };
+    // Drag & Drop: al empezar, guardamos el id de la tarea
+    item.addEventListener('dragstart', (e)=>{
+      e.dataTransfer.setData('text/plain', t.id);
+    });
+
+    item.append(cb, sp, edit, del);
+    return item;
+  };
+
+  // pinta por categorías
+  Object.keys(groups).forEach(cat=>{
+    const items = groups[cat] || [];
+
+    // Cabecera de categoría (título + tacho) — visible aunque no tenga tareas
+    const catHeader = document.createElement('div');
+    catHeader.style.display='flex';
+    catHeader.style.alignItems='center';
+    catHeader.style.gap='8px';
+    catHeader.style.margin='10px 0 6px';
+
+    const title = document.createElement('b');
+    title.textContent = cat || 'Sin categoría';
+    title.style.flex='1';
+    title.style.color='#d9e2ff';
+
+    const delCat = document.createElement('button');
+    delCat.className='del';
+    delCat.title='Eliminar categoría';
+    delCat.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm8 0h-2v8h2V9Zm-5 0h2v8h-2V9Z"/></svg>`;
+    delCat.onclick = ()=>{
+      if(!confirm(`¿Eliminar la categoría "${cat || 'Sin categoría'}" y todas sus tareas?`)) return;
+      const S = loadState(panel.storageKey);
+      if(cat){ // solo si es una categoría con nombre
+        S.cats = S.cats.filter(c=> c!==cat);
+        S.tasks = S.tasks.filter(t=> t.cat !== cat);
+      }else{
+        // “Sin categoría”: solo borra sus tareas
+        S.tasks = S.tasks.filter(t=> (t.cat||'') !== '');
+      }
+      saveState(panel.storageKey, S);
+      renderCats(panel);
+      renderList(panel);
+    };
+    const editCat = document.createElement('button');
+    editCat.className='del';
+    editCat.title='Editar categoría';
+    editCat.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>`;
+    editCat.onclick = ()=>{
+      if(!cat) {
+        alert('No puedes editar "Sin categoría"');
+        return;
+      }
+      const newName = prompt('Nuevo nombre de categoría:', cat);
+      if(!newName || newName.trim()==='' || newName===cat) return;
+      
+      const S = loadState(panel.storageKey);
+      // Renombrar en la lista de categorías
+      S.cats = S.cats.map(c=> c===cat ? newName.trim() : c);
+      // Renombrar en todas las tareas que tengan esta categoría
+      S.tasks = S.tasks.map(t=> t.cat===cat ? {...t, cat:newName.trim()} : t);
+      saveState(panel.storageKey, S);
+      
+      renderCats(panel);
+      renderList(panel);
+    };
+
+    // Zona “drop” para mover tareas a esta categoría
+    catHeader.addEventListener('dragover', (e)=> e.preventDefault());
+    catHeader.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      const id = e.dataTransfer.getData('text/plain');
+      const S = loadState(panel.storageKey);
+      S.tasks = S.tasks.map(t=> t.id===id ? {...t, cat:(cat||'')} : t);
+      saveState(panel.storageKey, S);
+      renderCats(panel);
+      renderList(panel);
+    });
+
+    catHeader.append(title, editCat, delCat);
+    mount.appendChild(catHeader);
+
+    // tareas: incompletas arriba, hechas abajo
+    const sorted = [...items].sort((a,b)=> (a.done===b.done ? 0 : a.done ? 1 : -1));
+    sorted.forEach(t=> mount.appendChild(makeItem(t)));
+  });
+ }
+
+    // Añadir categoría
+    function addCategory(panel, name){
+      const nm = (name||'').trim();
+      if(!nm) return;
+      const s = loadState(panel.storageKey);
+      if(!s.cats.includes(nm)){
+        s.cats.push(nm);
+        saveState(panel.storageKey, s);
+        renderCats(panel);
+        renderList(panel);
+      }
+    }
+
+    // Añadir tarea (usa el select actual como categoría)
+    function addTask(panel){
+  const txtEl = document.getElementById(panel.ids.text);
+  const selEl = document.getElementById(panel.ids.sel);
+  if (!txtEl || !selEl) return;
+
+  const text = txtEl.value.trim();
+  const cat = selEl.value;
+  if (!text) return;
+
+  const s = loadState(panel.storageKey);
+  s.tasks.push({ id: uid(), cat, text, done: false, ts: todayISO() });
+  saveState(panel.storageKey, s);
+
+  // limpiar campo de texto
+  txtEl.value = '';
+
+  // repintar lista (solo una vez)
+  renderList(panel);
+}
+
+   // Conecta inputs/botones de un panel (sin Enter, solo con botón) y evita doble wiring
+function wirePanel(panel){
+  // 1) Reset semanal (desmarca, no borra) y pinta el <select> de categorías
+  maybeWeeklyReset(panel.storageKey);
+  renderCats(panel);
+
+  // 2) Coge referencias de este panel
+  const txt        = document.getElementById(panel.ids.text);
+  const sel        = document.getElementById(panel.ids.sel);
+  const addTaskBtn = document.getElementById(panel.ids.addTask);
+  const addCatBtn  = document.getElementById(panel.ids.addCat);
+  const newCatInp  = document.getElementById(panel.ids.newCat);
+
+  // 4) Botón "Añadir tarea" — idempotente (no se cablea dos veces)
+  if (addTaskBtn && !addTaskBtn.dataset.wired){
+    addTaskBtn.type = 'button';                 // asegura que no haga submit
+    addTaskBtn.addEventListener('click', ()=>{  // siempre via botón
+      addTask(panel);
+    }, {passive:true});
+    addTaskBtn.dataset.wired = '1';
+  }
+
+  // 5) Botón "Añadir categoría" — idempotente (no se cablea dos veces)
+  if (addCatBtn && !addCatBtn.dataset.wired){
+    addCatBtn.type = 'button';
+    addCatBtn.addEventListener('click', ()=>{
+      if (!newCatInp) return;
+      const val = newCatInp.value.trim();
+      if (!val) return;
+      addCategory(panel, val);
+      newCatInp.value = '';
+    }, {passive:true});
+    addCatBtn.dataset.wired = '1';
+  }
+
+  // 6) Primera pintura de la lista (tareas agrupadas por categoría)
+  renderList(panel);
+}
+
+    /* ------------- INIT ------------- */
+    document.addEventListener('DOMContentLoaded', ()=>{
+      setupTabs();
+      wireDiary();
+      wireOutfits();
+      wireMakeup();
+
+      // Conectar los 4 paneles de checklist
+      wirePanel(PANELS.prep);
+      wirePanel(PANELS.cute);
+      wirePanel(PANELS.darks);
+      wirePanel(PANELS.otros);
+    });
+    /* ========== SPLASH SCREEN CON CARGA ALEATORIA ========== */
+(function(){
+  const splash = document.getElementById('splashScreen');
+  const progressBar = document.getElementById('progressBar');
+  const loadingText = document.getElementById('loadingText');
+  const skipBtn = document.getElementById('skipBtn');
+  
+  if(!splash) return; // Si no existe el splash, salir
+
+  // Textos random para la carga
+  const loadingMessages = [
+    'Preparando tu escenario...',
+    'Cargando creatividad...',
+    'Afinando el arpa...',
+    'Organizando ideas...',
+    'Sincronizando looks...',
+    'Despertando inspiración...',
+    'Configurando magia...'
+  ];
+
+  // Duración ALEATORIA (3-10 segundos)
+  const duration = Math.random() * 7000 + 3000; // entre 3000ms y 10000ms
+  const startTime = Date.now();
+  let animationFrame;
+
+  // Actualizar barra de progreso
+  function updateProgress(){
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min((elapsed / duration) * 100, 100);
+    
+    progressBar.style.width = progress + '%';
+
+    // Cambiar texto random cada 30% de progreso
+    if(progress > 30 && progress < 35){
+      loadingText.textContent = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+    }
+    if(progress > 60 && progress < 65){
+      loadingText.textContent = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+    }
+    if(progress > 90 && progress < 95){
+      loadingText.textContent = '¡Casi listo! ✨';
+    }
+
+    if(progress < 100){
+      animationFrame = requestAnimationFrame(updateProgress);
+    } else {
+      finishSplash();
+    }
+  }
+
+  // Terminar splash con fade out
+  function finishSplash(){
+    splash.style.transition = 'opacity 0.8s ease';
+    splash.style.opacity = '0';
+    setTimeout(()=>{
+      splash.style.display = 'none';
+      cancelAnimationFrame(animationFrame);
+    }, 800);
+  }
+
+  // Botón de saltar
+  skipBtn.addEventListener('click', ()=>{
+    cancelAnimationFrame(animationFrame);
+    finishSplash();
+  });
+
+  // Iniciar animación
+  updateProgress();
+
+  // Añadir animaciones CSS
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+  </script>
+</body>
+</html>
