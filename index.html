@@ -2616,31 +2616,39 @@ function wirePanel(panel){
 (function(){
   const menuToggle = document.getElementById('menuToggle');
   const menuOverlay = document.getElementById('menuOverlay');
-  const tabs = document.querySelector('.tabs');
+  const tabsContainer = document.querySelector('.tabs');
   
-  if(!menuToggle || !tabs) return;
+  if(!menuToggle || !tabsContainer) return;
 
   // Abrir/cerrar menú
-  menuToggle.addEventListener('click', ()=>{
-    tabs.classList.toggle('open');
+  menuToggle.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    tabsContainer.classList.toggle('open');
     menuOverlay.classList.toggle('active');
-    menuToggle.textContent = tabs.classList.contains('open') ? '✕' : '☰';
+    menuToggle.textContent = tabsContainer.classList.contains('open') ? '✕' : '☰';
   });
 
   // Cerrar al hacer click en overlay
   menuOverlay.addEventListener('click', ()=>{
-    tabs.classList.remove('open');
+    tabsContainer.classList.remove('open');
     menuOverlay.classList.remove('active');
     menuToggle.textContent = '☰';
   });
 
-  // Cerrar al seleccionar una pestaña
+  // Solo en móvil: cerrar menú después de seleccionar tab
+  function closeMenuOnMobile(){
+    if(window.innerWidth <= 768 && tabsContainer.classList.contains('open')){
+      setTimeout(()=>{
+        tabsContainer.classList.remove('open');
+        menuOverlay.classList.remove('active');
+        menuToggle.textContent = '☰';
+      }, 150);
+    }
+  }
+
+  // Añadir listener de cierre DESPUÉS de que los tabs hagan su trabajo
   document.querySelectorAll('.tab').forEach(tab=>{
-    tab.addEventListener('click', ()=>{
-      tabs.classList.remove('open');
-      menuOverlay.classList.remove('active');
-      menuToggle.textContent = '☰';
-    });
+    tab.addEventListener('click', closeMenuOnMobile, false);
   });
 })();
 
