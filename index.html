@@ -291,6 +291,26 @@ body::after {
   }
 }
 
+/* ===== TABS RESPONSIVE (solo CSS) ===== */
+@media (max-width: 768px) {
+  .tabs {
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 12px;
+    background: rgba(26, 31, 53, 0.2);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .tab {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+  }
+}
   </style>
 </head>
 <body>
